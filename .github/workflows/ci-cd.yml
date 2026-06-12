@@ -44,24 +44,27 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Install kubectl
-        uses: azure/setup-kubectl@v4
-        with:
-          version: '1.35.0'
+      - name: Download and install kubectl
+        run: |
+          curl -LO "https://dl.k8s.io/release/v1.34.1/bin/linux/amd64/kubectl"
+          chmod +x kubectl
+          sudo mv kubectl /usr/local/bin/kubectl
+          kubectl version --client
 
       - name: Setup kubeconfig
         run: |
-          echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig
-          chmod 600 kubeconfig
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
 
       - name: Update backend image
         run: |
-          kubectl --kubeconfig=kubeconfig set image deployment/backend backend=${{ env.BACKEND_IMAGE }}:${{ env.TAG }} -n default
+          kubectl set image deployment/backend backend=${{ env.BACKEND_IMAGE }}:${{ env.TAG }} -n default
 
       - name: Update frontend image
         run: |
-          kubectl --kubeconfig=kubeconfig set image deployment/frontend frontend=${{ env.FRONTEND_IMAGE }}:${{ env.TAG }} -n default
+          kubectl set image deployment/frontend frontend=${{ env.FRONTEND_IMAGE }}:${{ env.TAG }} -n default
 
       - name: Check rollout status
         run: |
-          kubectl --kubeconfig=kubeconfig rollout status deployment/backend -n default
+          kubectl rollout status deployment/backend -n default
