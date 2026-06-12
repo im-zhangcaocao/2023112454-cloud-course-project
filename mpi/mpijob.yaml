@@ -1,0 +1,93 @@
+apiVersion: kubeflow.org/v1
+kind: MPIJob
+metadata:
+  name: mpi-pi
+  namespace: default
+spec:
+  slotsPerWorker: 2
+  runPolicy:
+    cleanPodPolicy: Running
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: launcher
+            image: swr.cn-southwest-2.myhuaweicloud.com/zyh2023112406/mpi4py:v1
+            command: ["mpirun"]
+            args:
+            - "-np"
+            - "4"
+            - "python"
+            - "/opt/mpi/pi_mpi.py"
+            resources:
+              limits:
+                cpu: "500m"
+                memory: "512Mi"
+              requests:
+                cpu: "200m"
+                memory: "256Mi"
+          restartPolicy: Never
+    Worker:
+      replicas: 2
+      template:
+        spec:
+          containers:
+          - name: worker
+            image: swr.cn-southwest-2.myhuaweicloud.com/zyh2023112406/mpi4py:v1
+            resources:
+              limits:
+                cpu: "1"
+                memory: "1Gi"
+              requests:
+                cpu: "500m"
+                memory: "512Mi"
+          restartPolicy: Never
+---
+apiVersion: kubeflow.org/v1
+kind: MPIJob
+metadata:
+  name: mpi-matrix
+  namespace: default
+spec:
+  slotsPerWorker: 2
+  runPolicy:
+    cleanPodPolicy: Running
+  mpiReplicaSpecs:
+    Launcher:
+      replicas: 1
+      template:
+        spec:
+          containers:
+          - name: launcher
+            image: swr.cn-southwest-2.myhuaweicloud.com/zyh2023112406/mpi4py:v1
+            command: ["mpirun"]
+            args:
+            - "-np"
+            - "4"
+            - "python"
+            - "/opt/mpi/matrix_mul_mpi.py"
+            resources:
+              limits:
+                cpu: "500m"
+                memory: "512Mi"
+              requests:
+                cpu: "200m"
+                memory: "256Mi"
+          restartPolicy: Never
+    Worker:
+      replicas: 2
+      template:
+        spec:
+          containers:
+          - name: worker
+            image: swr.cn-southwest-2.myhuaweicloud.com/zyh2023112406/mpi4py:v1
+            resources:
+              limits:
+                cpu: "1"
+                memory: "1Gi"
+              requests:
+                cpu: "500m"
+                memory: "512Mi"
+          restartPolicy: Never

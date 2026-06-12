@@ -1,0 +1,4 @@
+FROM swr.cn-east-3.myhuaweicloud.com/zxy2023112454/pyspark:v9
+WORKDIR /opt/spark/data
+COPY douban_movies.csv .
+WORKDIR /opt/spark

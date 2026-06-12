@@ -1,0 +1,54 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: mnist-ddp-trainer
+  namespace: default
+  labels:
+    app: mnist-ddp
+spec:
+  restartPolicy: Never
+  containers:
+  - name: worker-0
+    image: swr.cn-southwest-2.myhuaweicloud.com/zyh2023112406/pytorch-ddp:v1
+    command:
+    - torchrun
+    - --nproc_per_node=1
+    - --nnodes=2
+    - --node_rank=0
+    - --master_addr=mnist-ddp-trainer
+    - --master_port=29500
+    - /workspace/train_ddp.py
+    resources:
+      requests:
+        cpu: "2"
+        memory: "4Gi"
+      limits:
+        cpu: "4"
+        memory: "8Gi"
+    env:
+    - name: MASTER_ADDR
+      value: mnist-ddp-trainer
+    - name: MASTER_PORT
+      value: "29500"
+  - name: worker-1
+    image: swr.cn-southwest-2.myhuaweicloud.com/zyh2023112406/pytorch-ddp:v1
+    command:
+    - torchrun
+    - --nproc_per_node=1
+    - --nnodes=2
+    - --node_rank=1
+    - --master_addr=mnist-ddp-trainer
+    - --master_port=29500
+    - /workspace/train_ddp.py
+    resources:
+      requests:
+        cpu: "2"
+        memory: "4Gi"
+      limits:
+        cpu: "4"
+        memory: "8Gi"
+    env:
+    - name: MASTER_ADDR
+      value: mnist-ddp-trainer
+    - name: MASTER_PORT
+      value: "29500"
