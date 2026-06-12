@@ -7,9 +7,9 @@ on:
 
 env:
   REGION: cn-east-3
-  ORG: zxy2023112454
-  BACKEND_IMAGE: swr.cn-east-3.myhuaweicloud.com/${{ env.ORG }}/backend
-  FRONTEND_IMAGE: swr.cn-east-3.myhuaweicloud.com/${{ env.ORG }}/frontend
+  # 直接写死组织名
+  BACKEND_IMAGE: swr.cn-east-3.myhuaweicloud.com/zxy2023112454/backend
+  FRONTEND_IMAGE: swr.cn-east-3.myhuaweicloud.com/zxy2023112454/frontend
   TAG: ${{ github.sha }}
 
 jobs:
