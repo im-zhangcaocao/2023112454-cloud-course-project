@@ -44,20 +44,24 @@ jobs:
     needs: build-and-push
     runs-on: ubuntu-latest
     steps:
-      - name: Update backend image
-        uses: bitovi/github-actions-kubectl@v1
+      - name: Install kubectl
+        uses: azure/setup-kubectl@v4
         with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-          args: set image deployment/backend backend=${{ env.BACKEND_IMAGE }}:${{ env.TAG }} -n default
+          version: '1.35.0'
+
+      - name: Setup kubeconfig
+        run: |
+          echo "${{ secrets.KUBE_CONFIG }}" > kubeconfig
+          chmod 600 kubeconfig
+
+      - name: Update backend image
+        run: |
+          kubectl --kubeconfig=kubeconfig set image deployment/backend backend=${{ env.BACKEND_IMAGE }}:${{ env.TAG }} -n default
 
       - name: Update frontend image
-        uses: bitovi/github-actions-kubectl@v1
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-          args: set image deployment/frontend frontend=${{ env.FRONTEND_IMAGE }}:${{ env.TAG }} -n default
+        run: |
+          kubectl --kubeconfig=kubeconfig set image deployment/frontend frontend=${{ env.FRONTEND_IMAGE }}:${{ env.TAG }} -n default
 
       - name: Check rollout status
-        uses: bitovi/github-actions-kubectl@v1
-        with:
-          kubeconfig: ${{ secrets.KUBE_CONFIG }}
-          args: rollout status deployment/backend -n default
+        run: |
+          kubectl --kubeconfig=kubeconfig rollout status deployment/backend -n default
