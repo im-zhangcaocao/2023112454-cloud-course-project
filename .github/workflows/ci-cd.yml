@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 env:
-  REGION: "cn-east-3"
-  ORG: "zxy2023112454"
+  REGION: cn-east-3
+  ORG: zxy2023112454
   BACKEND_IMAGE: swr.cn-east-3.myhuaweicloud.com/${{ env.ORG }}/backend
   FRONTEND_IMAGE: swr.cn-east-3.myhuaweicloud.com/${{ env.ORG }}/frontend
   TAG: ${{ github.sha }}
@@ -16,16 +16,12 @@ jobs:
   build-and-push:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      
       - name: Login to Huawei Cloud SWR
         run: |
-          docker login -u ${{ secrets.SWR_REGION }}@${{ secrets.SWR_ACCESS_KEY }} -p ${{ secrets.SWR_SECRET_KEY }} swr.${{ secrets.SWR_REGION }}.myhuaweicloud.com
+          echo "${{ secrets.SWR_SECRET_KEY }}" | docker login -u "${{ secrets.SWR_REGION }}@${{ secrets.SWR_ACCESS_KEY }}" --password-stdin "swr.${{ secrets.SWR_REGION }}.myhuaweicloud.com"
+
       - name: Build and push backend
         uses: docker/build-push-action@v5
         with:
@@ -54,7 +50,6 @@ jobs:
         uses: bitovi/github-actions-kubectl@v1
         with:
           kubeconfig: ${{ secrets.KUBE_CONFIG }}
-          kubectl_version: '1.35'
           args: set image deployment/backend backend=${{ env.BACKEND_IMAGE }}:${{ env.TAG }} -n default
 
       - name: Update frontend image
