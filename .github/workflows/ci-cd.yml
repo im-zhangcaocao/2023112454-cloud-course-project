@@ -6,8 +6,6 @@ on:
   workflow_dispatch:
 
 env:
-  REGION: cn-east-3
-  # 直接写死组织名
   BACKEND_IMAGE: swr.cn-east-3.myhuaweicloud.com/zxy2023112454/backend
   FRONTEND_IMAGE: swr.cn-east-3.myhuaweicloud.com/zxy2023112454/frontend
   TAG: ${{ github.sha }}
@@ -20,7 +18,7 @@ jobs:
 
       - name: Login to Huawei Cloud SWR
         run: |
-          echo "${{ secrets.SWR_SECRET_KEY }}" | docker login -u "${{ secrets.SWR_REGION }}@${{ secrets.SWR_ACCESS_KEY }}" --password-stdin "swr.${{ secrets.SWR_REGION }}.myhuaweicloud.com"
+          echo "${{ secrets.SWR_PASSWORD }}" | docker login -u "${{ secrets.SWR_USERNAME }}" --password-stdin "swr.cn-east-3.myhuaweicloud.com"
 
       - name: Build and push backend
         uses: docker/build-push-action@v5
